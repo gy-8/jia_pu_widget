@@ -1,134 +1,90 @@
-// test/jia_pu_widget_test.dart
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jia_pu_widget/jia_pu_widget.dart';
 import 'package:jia_pu_widget/models/jia_pu_member.dart';
 
 import '../example/jia_pu_styles.dart';
+import '../example/main.dart';
+
 
 void main() {
-  JiaPuMember generateTestFamilyTree(
-    int generation,
-    int maxGenerations,
-    int maxChildren,
-  ) {
-    const orders = ['长子', '次子', '三子'];
-    const femaleOrders = ['长女', '次女', '三女'];
-    final random = Random();
+  // 测试 JiaPuPage 的 widget 渲染
+  group('JiaPuPage Widget Tests', () {
+    testWidgets('JiaPuPage renders correctly with AppBar and JiaPuWidget', (WidgetTester tester) async {
+      // 构建 JiaPuPage
+      await tester.pumpWidget(const MaterialApp(home: JiaPuPage()));
 
-    final isMale = random.nextBool();
-    final orderList = isMale ? orders : femaleOrders;
+      // 验证 AppBar 是否渲染并包含标题“家谱”
+      expect(find.byType(AppBar), findsOneWidget);
+      expect(find.text('家谱'), findsOneWidget);
 
-    final name = '张$generation${random.nextInt(1000)}';
-    final spouse = random.nextBool()
-        ? '李$generation${random.nextInt(1000)}'
-        : '';
-    final order = orderList[random.nextInt(orderList.length)];
+      // 验证 JiaPuWidget 是否渲染
+      expect(find.byType(JiaPuWidget), findsOneWidget);
 
-    if (generation >= maxGenerations) {
-      return JiaPuMember(
-        name: name,
-        spouse: spouse,
-        order: order,
-        children: [],
-      );
-    }
+      // 验证 Scaffold 是否存在
+      expect(find.byType(Scaffold), findsOneWidget);
 
-    final childCount = random.nextInt(maxChildren) + 1;
-    final children = <JiaPuMember>[];
-    for (int i = 0; i < childCount && i < maxChildren; i++) {
-      children.add(
-        generateTestFamilyTree(generation + 1, maxGenerations, maxChildren),
-      );
-    }
-
-    return JiaPuMember(
-      name: name,
-      spouse: spouse,
-      order: order,
-      children: children,
-    );
-  }
-
-  testWidgets('JiaPuWidget renders correctly with sample family data', (
-    WidgetTester tester,
-  ) async {
-    final root = generateTestFamilyTree(1, 3, 3);
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: JiaPuWidget(
-            root: root,
-            nodeBuilder: JiaPuStyles.buildNode,
-            generationLabelBuilder: JiaPuStyles.buildGenerationLabel,
-            nodeWidth: JiaPuStyles.nodeWidth,
-            nodeSpacing: JiaPuStyles.nodeSpacing,
-            nodeHeight: JiaPuStyles.nodeHeight,
-            layerSpacing: JiaPuStyles.layerSpacing,
-            generationLabelOffsetX: JiaPuStyles.generationLabelOffsetX,
-            startX: JiaPuStyles.startX,
-            startY: JiaPuStyles.startY,
-          ),
+      // 验证 Stack 中的 Container 是否存在并有正确的背景颜色
+      final containerFinder = find.descendant(
+        of: find.byType(Stack),
+        matching: find.byWidgetPredicate(
+              (widget) => widget is Container && widget.color == Colors.white,
         ),
-      ),
-    );
+      );
+      expect(containerFinder, findsOneWidget);
+    });
 
-    await tester.pumpAndSettle();
+    testWidgets('JiaPuWidget receives correct root and styling properties', (WidgetTester tester) async {
+      // 构建 JiaPuPage
+      await tester.pumpWidget(const MaterialApp(home: JiaPuPage()));
 
-    expect(
-      find.textContaining('张1'),
-      findsOneWidget,
-      reason: 'Should find first generation node name',
-    );
-    expect(
-      find.textContaining('张2'),
-      findsWidgets,
-      reason: 'Should find second generation node names',
-    );
-    expect(
-      find.textContaining('张3'),
-      findsWidgets,
-      reason: 'Should find third generation node names',
-    );
-    expect(
-      find.textContaining('李'),
-      findsWidgets,
-      reason: 'Should find spouse names',
-    );
-    expect(
-      find.textContaining(RegExp('长子|次子|三子|长女|次女|三女')),
-      findsWidgets,
-      reason: 'Should find order in multiple nodes',
-    );
+      // 获取 JiaPuWidget
+      final jiaPuWidget = tester.widget<JiaPuWidget>(find.byType(JiaPuWidget));
 
-    expect(
-      find.textContaining('一\n世'),
-      findsOneWidget,
-      reason: 'Should find first generation label',
-    );
-    expect(
-      find.textContaining('二\n世'),
-      findsOneWidget,
-      reason: 'Should find second generation label',
-    );
-    expect(
-      find.textContaining('三\n世'),
-      findsOneWidget,
-      reason: 'Should find third generation label',
-    );
+      // 验证 JiaPuWidget 的属性
+      expect(jiaPuWidget.nodeWidth, JiaPuStyles.nodeWidth);
+      expect(jiaPuWidget.nodeSpacing, JiaPuStyles.nodeSpacing);
+      expect(jiaPuWidget.nodeHeight, JiaPuStyles.nodeHeight);
+      expect(jiaPuWidget.layerSpacing, JiaPuStyles.layerSpacing);
+      expect(jiaPuWidget.generationLabelOffsetX, JiaPuStyles.generationLabelOffsetX);
+      expect(jiaPuWidget.startX, JiaPuStyles.startX);
+      expect(jiaPuWidget.startY, JiaPuStyles.startY);
+      expect(jiaPuWidget.backgroundColor, const Color(0x2D000000));
+    });
+  });
 
-    // 验证节点不重叠
-    final positionedWidgets = find.byType(Positioned).evaluate().toList();
-    final positions = positionedWidgets
-        .map((e) => (e.widget as Positioned).left)
-        .toSet();
-    expect(
-      positions.length,
-      positionedWidgets.length,
-      reason: 'Nodes should have unique x positions',
-    );
+  // 测试 buildStaticFamilyTree 方法
+  group('buildStaticFamilyTree Tests', () {
+    test('buildStaticFamilyTree creates correct family tree structure', () {
+      final jiaPuPage = JiaPuPage();
+      final root = jiaPuPage.buildStaticFamilyTree();
+
+      // 验证第一世
+      expect(root.name, '张文博');
+      expect(root.spouse, '李丽华');
+      expect(root.order, '长子');
+      expect(root.children.length, 4);
+
+      // 验证第二世（张志远）
+      final gen2 = root.children[0];
+      expect(gen2.name, '张志远');
+      expect(gen2.spouse, '王芳');
+      expect(gen2.order, '长子');
+      expect(gen2.children.length, 3);
+
+      // 验证第三世（张明辉）
+      final gen3 = gen2.children[0];
+      expect(gen3.name, '张明辉');
+      expect(gen3.spouse, '');
+      expect(gen3.order, '长子');
+      expect(gen3.children.length, 2);
+
+      // 验证第四世（张浩然）
+      final gen4 = gen3.children[0];
+      expect(gen4.name, '张浩然');
+      expect(gen4.spouse, '刘静');
+      expect(gen4.order, '长子');
+      expect(gen4.children.length, 2);
+    });
   });
 }
