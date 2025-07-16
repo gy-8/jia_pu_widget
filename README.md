@@ -11,7 +11,7 @@
 - **节点交互支持**：节点为用户自定义 `Widget`，支持点击、长按等交互事件，增强用户体验。
 - **内置滚动**：支持左右和上下滚动，适配大型家谱。
 - **交互支持**：配合外部 `InteractiveViewer` 实现缩放和拖动，适合移动和桌面设备。
-- **跨平台支持**：兼容 Android、iOS、Windows、macOS、Linux（Web 支持需在 `example/` 目录运行 `flutter create --platforms=web .`）。
+- **跨平台支持**：兼容 Android、iOS、Web、Windows、macOS、Linux。
 
 ## 安装
 
@@ -142,8 +142,7 @@ class JiaPuPage extends StatelessWidget {
 
 ## 平台支持
 
-- **已支持**：Android、iOS、Windows、macOS、Linux。
-- **Web 支持**：在 `example/` 目录运行 `flutter create --platforms=web .`。
+- **已支持**：Android、iOS、Web、Windows、macOS、Linux。
 
 ## 贡献
 

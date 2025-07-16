@@ -11,7 +11,7 @@
 - **Node Interaction Support**: Nodes are user-defined `Widget`s, enabling click, long-press, and other interactive events for enhanced user experience.
 - **Built-in Scrolling**: Supports horizontal and vertical scrolling for large family trees.
 - **Interactive Support**: Add an external `InteractiveViewer` for zooming and panning, suitable for mobile and desktop devices.
-- **Cross-Platform Support**: Compatible with Android, iOS, Windows, macOS, Linux (Web support requires running `flutter create --platforms=web .` in the `example/` directory).
+- **Cross-Platform Support**: Compatible with Android, iOS, Web, Windows, macOS, Linux.
 
 ## Installation
 
@@ -142,8 +142,7 @@ For more complex styles and large family tree examples, see [`example/main.dart`
 
 ## Platform Support
 
-- **Supported**: Android, iOS, Windows, macOS, Linux.
-- **Web Support**: Requires running `flutter create --platforms=web .` in the `example/` directory.
+- **Supported**: Android, iOS, Web, Windows, macOS, Linux.
 
 ## Contributing
 
