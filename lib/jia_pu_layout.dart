@@ -1,4 +1,6 @@
 // lib/jia_pu_layout.dart
+import 'dart:math' as math;
+
 import 'package:jia_pu_widget/models/jia_pu_member.dart';
 
 class JiaPuLayout {
@@ -20,73 +22,40 @@ class JiaPuLayout {
     required this.generationLabelOffsetX,
   });
 
-  Map<int, List<double>> calculateOffsets(JiaPuMember? root, int generation) {
-    final offsets = <int, List<double>>{};
-
-    if (root == null) return offsets;
-
-    if (!offsets.containsKey(generation)) {
-      offsets[generation] = [];
+  List<double> calculateOffsets(JiaPuMember member, int generation) {
+    final offsets = <double>[];
+    if (member.children.isEmpty) {
+      member.subtreeMaxXOffset = member.nodeXOffset;
+      offsets.add(member.nodeXOffset);
+      return offsets;
     }
 
-    root.nodeXOffset = startX;
-    offsets[generation]!.add(startX);
-
-    double nextX = startX;
-    for (var child in root.children) {
-      final childOffsets = calculateOffsets(child, generation + 1);
-      offsets.addAll(childOffsets);
-
-      if (childOffsets.containsKey(generation + 1) &&
-          childOffsets[generation + 1]!.isNotEmpty) {
-        final childCount = childOffsets[generation + 1]!.length;
-        final totalChildWidth =
-            childCount * nodeWidth + (childCount - 1) * nodeSpacing;
-        final childStartX = nextX;
-        for (int i = 0; i < childCount; i++) {
-          final childX = childStartX + i * (nodeWidth + nodeSpacing);
-          childOffsets[generation + 1]![i] = childX;
-          if (i < child.children.length) {
-            child.children[i].nodeXOffset = childX;
-          }
-        }
-        nextX = childStartX + totalChildWidth + nodeSpacing;
-      }
+    double currentX = member.nodeXOffset;
+    for (var child in member.children) {
+      child.nodeXOffset = currentX;
+      offsets.addAll(calculateOffsets(child, generation + 1));
+      currentX = math.max(currentX, child.subtreeMaxXOffset) +
+          nodeWidth +
+          nodeSpacing;
+      child.subtreeMaxXOffset = currentX;
     }
 
-    if (root.children.isNotEmpty && offsets.containsKey(generation + 1)) {
-      final childOffsets = offsets[generation + 1]!;
-      if (childOffsets.isNotEmpty) {
-        root.nodeXOffset = (childOffsets.first + childOffsets.last) / 2;
-        offsets[generation]![0] = root.nodeXOffset;
-      }
-    }
-
-    root.subtreeMaxXOffset = nextX - nodeWidth - nodeSpacing;
+    member.subtreeMaxXOffset = currentX - nodeWidth - nodeSpacing;
     return offsets;
   }
 
   double calculateCanvasWidth(JiaPuMember? root) {
     if (root == null) return 0.0;
 
-    double maxWidth = (root.nodeXOffset + nodeWidth);
-    for (var child in root.children) {
-      final childWidth = calculateCanvasWidth(child);
-      maxWidth = maxWidth > childWidth ? maxWidth : childWidth;
-    }
-    return maxWidth + nodeSpacing;
+    return root.subtreeMaxXOffset + nodeWidth + startX;
   }
 
   double calculateCanvasHeight(JiaPuMember? root, int generation) {
     if (root == null) return 0.0;
-
-    double maxHeight =
-        startY + nodeHeight + (generation * (nodeHeight + layerSpacing));
-    for (var child in root.children) {
-      final childHeight = calculateCanvasHeight(child, generation + 1);
-      maxHeight = maxHeight > childHeight ? maxHeight : childHeight;
-    }
-    return maxHeight;
+    
+    return (calculateTreeDepth(root) + 1) *
+        (nodeHeight + layerSpacing) +
+        startY;
   }
 
   int calculateTreeDepth(JiaPuMember? member) {

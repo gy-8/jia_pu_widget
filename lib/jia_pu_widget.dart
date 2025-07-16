@@ -16,6 +16,7 @@ class JiaPuWidget extends StatefulWidget {
   final double generationLabelOffsetX;
   final double startX;
   final double startY;
+  final Color? backgroundColor;
 
   const JiaPuWidget({
     Key? key,
@@ -29,6 +30,7 @@ class JiaPuWidget extends StatefulWidget {
     this.generationLabelOffsetX = 0.0,
     this.startX = 100.0,
     this.startY = 100.0,
+    this.backgroundColor = Colors.transparent
   }) : super(key: key);
 
   @override
@@ -50,18 +52,24 @@ class _JiaPuWidgetState extends State<JiaPuWidget> {
       layerSpacing: widget.layerSpacing,
       generationLabelOffsetX: widget.generationLabelOffsetX,
     );
-    layout.calculateOffsets(widget.root, 0);
   }
 
   @override
   Widget build(BuildContext context) {
+    // 计算节点位置
+    widget.root.nodeXOffset = widget.startX;
+    layout.calculateOffsets(widget.root, 0);
+    double width = layout.calculateCanvasWidth(widget.root);
+    double height = layout.calculateCanvasHeight(widget.root, 0);
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: SizedBox(
-          width: layout.calculateCanvasWidth(widget.root),
-          height: layout.calculateCanvasHeight(widget.root, 0),
+        child: Container(
+          color: widget.backgroundColor,
+          width: width,
+          height: height,
           child: Stack(
             children: [
               CustomPaint(
@@ -93,9 +101,8 @@ class _JiaPuWidgetState extends State<JiaPuWidget> {
 
     final offsets = layout.calculateOffsets(member, depth);
     if (widget.generationLabelBuilder != null &&
-        offsets.containsKey(depth) &&
-        offsets[depth]!.isNotEmpty &&
-        x == offsets[depth]!.first) {
+        offsets.isNotEmpty &&
+        x == offsets.first) {
       widgets.add(
         Positioned(
           left: widget.generationLabelOffsetX,

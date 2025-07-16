@@ -15,4 +15,23 @@ class JiaPuMember {
     this.nodeXOffset = 0.0,
     this.subtreeMaxXOffset = 0.0,
   });
+
+  factory JiaPuMember.fromJson(Map<String, dynamic> json) {
+    return JiaPuMember(
+      name: json['name'] ?? '',
+      spouse: json['spouse'] ?? '',
+      order: json['order'] ?? '',
+      children: (json['children'] as List<dynamic>?)
+          ?.map((child) => JiaPuMember.fromJson(child))
+          .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'spouse': spouse,
+    'order': order,
+    'children': children.map((child) => child.toJson()).toList(),
+  };
 }
