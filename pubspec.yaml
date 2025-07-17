@@ -3,7 +3,6 @@ description: "A Flutter widget for rendering Chinese family tree (JiaPu) diagram
 version: 1.0.0
 homepage: "https://github.com/gy-8/jia_pu_widget"
 repository: "https://github.com/gy-8/jia_pu_widget"
-publish_to: "https://pub.dartlang.org"
 
 environment:
   sdk: '>=2.12.0 <4.0.0'
