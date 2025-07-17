@@ -1,5 +1,5 @@
 name: jia_pu_widget
-description: "A Flutter widget for rendering Chinese family tree (JiaPu) diagrams with customizable nodes, generation labels, and interactive zooming/dragging."
+description: "A Flutter widget for rendering Chinese family tree (JiaPu) diagrams, supporting unlimited generations and members per generation, with fully customizable nodes and generation labels."
 version: 1.0.0
 homepage: "https://github.com/gy-8/jia_pu_widget"
 repository: "https://github.com/gy-8/jia_pu_widget"
